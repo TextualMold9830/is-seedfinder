@@ -625,7 +625,7 @@ public class Dungeon {
 //			bundle.put( DAILY, daily );
 //			bundle.put( DAILY_REPLAY, dailyReplay );
 //			bundle.put( LAST_PLAYED, lastPlayed = Game.realTime);
-			bundle.put( CHALLENGES, challenges );
+//			bundle.put( CHALLENGES, challenges );
 //			bundle.put( MOBS_TO_CHAMPION, mobsToChampion );
 //			bundle.put( HERO, hero );
 //			bundle.put( DEPTH, depth );
