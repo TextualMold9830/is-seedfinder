@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.desktop;
 
 import com.badlogic.gdx.utils.SharedLibraryLoader;
+import org.lwjgl.system.Configuration;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -42,51 +43,19 @@ public class DesktopLaunchValidator {
 			if ("1".equals(System.getenv("JAVA_STARTED_ON_FIRST_THREAD_" +
 					ManagementFactory.getRuntimeMXBean().getName().split("@")[0]))) {
 				return true;
+			} else {
+				if (SharedLibraryLoader.isMac) {
+					Configuration.GLFW_LIBRARY_NAME.set("glfw_async");
+				}
+				return true;
 			}
 
 			// Check if we are the relaunched process, if so return true to avoid looping.
 			// The game will likely crash, but that's unavoidable at this point.
-			if ("true".equals(System.getProperty("shpdRelaunched"))){
-				System.err.println("Error: Could not verify new process is running on the first thread. Trying to run the game anyway...");
-				return true;
-			}
 
-			// Relaunch a new jvm process with the same arguments, plus -XstartOnFirstThread
-			String sep = System.getProperty("file.separator");
+            // Relaunch a new jvm process with the same arguments, plus -XstartOnFirstThread
 
-			ArrayList<String> jvmArgs = new ArrayList<>();
-			jvmArgs.add(System.getProperty("java.home") + sep + "bin" + sep + "java");
-			jvmArgs.add("-XstartOnFirstThread");
-			jvmArgs.add("-DshpdRelaunched=true");
-			jvmArgs.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
-			jvmArgs.add("-cp");
-			jvmArgs.add(System.getProperty("java.class.path"));
-			jvmArgs.add(DesktopLauncher.class.getName());
 
-			System.err.println("Error: ShatteredPD must start on the first thread in order to work on macOS.");
-			System.err.println("  To avoid this error, run the game with the \"-XstartOnFirstThread\" argument");
-			System.err.println("  Now attempting to relaunch the game on the first thread automatically:\n");
-
-			try {
-				Process process = new ProcessBuilder(jvmArgs).redirectErrorStream(true).start();
-				BufferedReader out = new BufferedReader(new InputStreamReader(process.getInputStream()));
-				String line;
-
-				//Relay console output from the relaunched process
-				while ((line = out.readLine()) != null) {
-					if (line.toLowerCase().startsWith("error")){
-						System.err.println(line);
-					} else {
-						System.out.println(line);
-					}
-				}
-
-				process.waitFor();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			return false;
 
 		}
 
